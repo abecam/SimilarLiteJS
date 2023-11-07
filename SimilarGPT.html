@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Same Game</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        #game-board {
+            display: inline-block;
+        }
+
+        .tile {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid #000;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Same Game</h1>
+    <div id="game-board"></div>
+    <p>Score: <span id="score">0</span></p>
+
+    <script>
+        const colors = ["red", "blue", "green", "yellow"];
+        const boardSize = 8; // Change this to adjust the size of the board
+        const emptyCell = { color: "white", removed: false };
+
+        let board = [];
+        let score = 0;
+
+        const gameBoard = document.getElementById("game-board");
+        const scoreDisplay = document.getElementById("score");
+
+        function createBoard() {
+            for (let row = 0; row < boardSize; row++) {
+                const rowTiles = [];
+                for (let col = 0; col < boardSize; col++) {
+                    const tile = createTile();
+                    rowTiles.push(tile);
+                }
+                board.push(rowTiles);
+            }
+        }
+
+        function createTile() {
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const tile = document.createElement("div");
+            tile.className = "tile";
+            tile.style.backgroundColor = color;
+            tile.color = color;
+            tile.removed = false;
+
+            tile.addEventListener("click", () => removeTiles(tile));
+
+            return tile;
+        }
+
+        function renderBoard() {
+            gameBoard.innerHTML = "";
+            for (let row = 0; row < board.length; row++) {
+                for (let col = 0; col < board[row].length; col++) {
+                    const tile = board[row][col];
+                    if (!tile.removed) {
+                        gameBoard.appendChild(tile);
+                    }
+                }
+                gameBoard.appendChild(document.createElement("br"));
+            }
+        }
+
+        function removeTiles(startingTile) {
+            const queue = [startingTile];
+            const color = startingTile.color;
+            const tilesToRemove = [];
+
+            while (queue.length > 0) {
+                const currentTile = queue.pop();
+
+                if (
+                    currentTile &&
+                    !currentTile.removed &&
+                    currentTile.color === color
+                ) {
+                    currentTile.removed = true;
+                    tilesToRemove.push(currentTile);
+
+                    const row = Array.from(
+                        currentTile.parentElement.children
+                    ).indexOf(currentTile);
+                    const col = Array.from(
+                        currentTile.parentElement.parentElement.children
+                    ).indexOf(currentTile.parentElement);
+
+                    // Check adjacent tiles
+                    const neighbors = [
+                        [row - 1, col], // top
+                        [row + 1, col], // bottom
+                        [row, col - 1], // left
+                        [row, col + 1], // right
+                    ];
+
+                    neighbors.forEach(([r, c]) => {
+                        if (
+                            r >= 0 &&
+                            r < boardSize &&
+                            c >= 0 &&
+                            c < boardSize
+                        ) {
+                            queue.push(board[r][c]);
+                        }
+                    });
+                }
+            }
+
+            if (tilesToRemove.length > 1) {
+                // Remove tiles
+                tilesToRemove.forEach((tile) => {
+                    tile.style.backgroundColor = emptyCell.color;
+                    tile.removed = true;
+                });
+
+                // Update score
+                score += tilesToRemove.length;
+                scoreDisplay.textContent = score;
+
+                // Check for a win
+                if (score === boardSize * boardSize) {
+                    alert("Congratulations! You cleared the board!");
+                    resetGame();
+                }
+
+                // Collapse columns
+                for (let col = 0; col < boardSize; col++) {
+                    const column = board.map((row) => row[col]);
+                    const nonEmpty = column.filter((tile) => !tile.removed);
+
+                    for (let row = 0; row < boardSize; row++) {
+                        if (row < nonEmpty.length) {
+                            board[row][col] = nonEmpty[row];
+                        } else {
+                            board[row][col] = createTile();
+                        }
+                    }
+                }
+
+                renderBoard();
+            }
+        }
+
+        function resetGame() {
+            board = [];
+            score = 0;
+            scoreDisplay.textContent = score;
+            createBoard();
+            renderBoard();
+        }
+
+        createBoard();
+        renderBoard();
+    </script>
+</body>
+</html>
