@@ -1,11 +1,12 @@
 const colors = ["red", "blue", "green", "yellow", "MediumOrchid", "cyan", "PaleGreen", "DarkSalmon", "HotPink", "Orange"];
-const nbColors = 2;
-const boardSize = 16; // Change this to adjust the size of the board
+const nbColors = 4;
+const boardSize = 10; // Change this to adjust the size of the board
 const emptyCell = { color: "white", removed: false };
 
 let board = [];
 let score = 0;
 let nbEffectiveColors;
+let highscore = 0;
 
 const gameBoard = document.getElementById("game-board");
 const scoreDisplay = document.getElementById("score");
@@ -130,7 +131,7 @@ function removeTiles(startingTile)
 
 		// Update score
 
-		score += (tilesToRemove.length - 1)* (tilesToRemove.length) / 2;
+		score += (tilesToRemove.length - 1) * (tilesToRemove.length) / 2;
 
 		scoreDisplay.textContent = score;
 
@@ -156,12 +157,18 @@ function removeTiles(startingTile)
 					board[row][col].style.border = "1px solid #f0ff";
 				}
 			}
+		}
+
+		// Now remove the empty columns
+		for (let col = 0; col < boardSize; col++)
+		{
+			const column = board.map((row) => row[col]);
 			const nonEmptyNow = column.filter((tile) => !tile.removed);
 
 			if (nonEmptyNow.length == 0 && nbTry < 100)
 			{
 				nbTry++;
-				console.debug("Removing column "+col);
+				console.debug("Removing column " + col);
 				// Empty column, we need to remove it
 				for (let colToRemove = col; colToRemove < boardSize - 1; colToRemove++)
 				{
@@ -186,90 +193,99 @@ function removeTiles(startingTile)
 	}
 }
 
+let isWin = false;
+let isLost = false;
+
 function checkWinLose()
 {
-	// The board is empty -> Win (score bonus)
-	// No 2 tiles of the same colors adjacent -> Lose
-	let isWin = true;
-	let isLost = true;
-
-	for (let row = board.length - 1; row >= 0; row--)
+	// Only if not already in win/lose situation
+	if (!isWin && !isLost)
 	{
-		for (let col = 0; col < board[row].length; col++)
-		{
-			const tile = board[row][col];
-			const color = board[row][col].color;
-
-			if (!tile.removed)
-			{
-				isWin = false;
-
-				const neighbors = [
-					[row - 1, col], // top
-					[row + 1, col], // bottom
-					[row, col - 1], // left
-					[row, col + 1], // right
-				];
-
-				neighbors.forEach(([r, c]) =>
-				{
-					if (
-						r >= 0 &&
-						r < boardSize &&
-						c >= 0 &&
-						c < boardSize
-					)
-					{
-						if (!board[r][c].removed && board[r][c].color === color)
-						{
-							isLost = false;
-						}
-					}
-				});
-				if (!isLost)
-				{
-					break;
-				}
-			}
-			if (!isLost)
-			{
-				break;
-			}
-		}
-		gameBoard.appendChild(document.createElement("br"));
-	}
-	if (isWin)
-	{
-		score += 1000 * boardSize * nbEffectiveColors;
-		alert("Congratulations! You cleared the board! Final score: " + score);
-		resetGame();
-	}
-	else if (isLost)
-	{
-		let nbLeft = 0;
+		isWin = true;
+ 		isLost = true;
+		// The board is empty -> Win (score bonus)
+		// No 2 tiles of the same colors adjacent -> Lose
 
 		for (let row = board.length - 1; row >= 0; row--)
 		{
 			for (let col = 0; col < board[row].length; col++)
 			{
 				const tile = board[row][col];
+				const color = board[row][col].color;
 
 				if (!tile.removed)
 				{
-					nbLeft++;
+					isWin = false;
+
+					const neighbors = [
+						[row - 1, col], // top
+						[row + 1, col], // bottom
+						[row, col - 1], // left
+						[row, col + 1], // right
+					];
+
+					neighbors.forEach(([r, c]) =>
+					{
+						if (
+							r >= 0 &&
+							r < boardSize &&
+							c >= 0 &&
+							c < boardSize
+						)
+						{
+							if (!board[r][c].removed && board[r][c].color === color)
+							{
+								isLost = false;
+							}
+						}
+					});
+					if (!isLost)
+					{
+						break;
+					}
+				}
+				if (!isLost)
+				{
+					break;
 				}
 			}
 		}
-		if (nbLeft < 5)
+		if (isWin)
 		{
-			score += 100 * boardSize * nbEffectiveColors;
-			alert("Game over, no more possible choices! Less than 5 tiles remaining, good job! Final score: " + score);
+			score += 1000 * boardSize * nbEffectiveColors;
+			document.getElementById("message").innerHTML = "Congratulations! You cleared the board! Final score: " + score;
 		}
-		else
+		else if (isLost)
 		{
-			alert("Game over, no more possible choices! Final score: " + score);
+			let nbLeft = 0;
+
+			for (let row = board.length - 1; row >= 0; row--)
+			{
+				for (let col = 0; col < board[row].length; col++)
+				{
+					const tile = board[row][col];
+
+					if (!tile.removed)
+					{
+						nbLeft++;
+					}
+				}
+			}
+			if (nbLeft < 5)
+			{
+				score += 100 * boardSize * nbEffectiveColors;
+				document.getElementById("message").innerHTML = "Game over, no more possible choices! Less than 5 tiles remaining, good job! Final score: " + score;
+			}
+			else
+			{
+				document.getElementById("message").innerHTML = "Game over, no more possible choices! Final score: " + score;
+			}
 		}
-		resetGame();
+		if ((isWin || isLost) && score > highscore)
+		{
+			highscore = score;
+			document.getElementById("message").innerHTML = document.getElementById("message").innerHTML +"<br>New High Score!";
+		}
 	}
 }
 
@@ -353,9 +369,12 @@ function showTilesToRemove(startingTile)
 
 function resetGame()
 {
+	isWin = false;
+	isLost = false;
 	board = [];
 	score = 0;
 	scoreDisplay.textContent = score;
+	document.getElementById("message").innerHTML = "High score = " + highscore;
 	createBoard();
 	renderBoard();
 }
