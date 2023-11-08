@@ -1,6 +1,6 @@
 const colors = ["red", "blue", "green", "yellow", "MediumOrchid", "cyan", "PaleGreen", "DarkSalmon", "HotPink", "Orange"];
 const nbColors = 2;
-const boardSize = 8; // Change this to adjust the size of the board
+const boardSize = 16; // Change this to adjust the size of the board
 const emptyCell = { color: "white", removed: false };
 
 let board = [];
@@ -35,6 +35,8 @@ function createTile()
 	tile.style.backgroundColor = color;
 	tile.color = color;
 	tile.removed = false;
+	tile.style.width = 400 / boardSize + "px";
+	tile.style.height = 400 / boardSize + "px";
 
 	tile.addEventListener("click", () => removeTiles(tile));
 	//tile.addEventListener("mouseover", () => showTilesToRemove(tile));
@@ -50,6 +52,8 @@ function createEmptyTile()
 	tile.style.backgroundColor = emptyCell.color;
 	tile.style.border = "1px solid #0fff";
 	tile.style.cursor = "default";
+	tile.style.width = 400 / boardSize + "px";
+	tile.style.height = 400 / boardSize + "px";
 
 	return tile;
 }
@@ -68,16 +72,11 @@ function renderBoard()
 	}
 }
 
-let inMethodStill = false;
-
 function removeTiles(startingTile)
 {
 	const queue = [startingTile];
 	const color = startingTile.color;
 	const tilesToRemove = [];
-
-	console.log("Removing tile " + inMethodStill);
-	inMethodStill = true;
 
 	while (queue.length > 0)
 	{
@@ -85,11 +84,11 @@ function removeTiles(startingTile)
 
 		if (
 			currentTile &&
-			!currentTile.removed &&
+			!currentTile.removed && !currentTile.toremove &&
 			currentTile.color === color
 		)
 		{
-			currentTile.removed = true;
+			currentTile.toremove = true;
 			tilesToRemove.push(currentTile);
 
 			const row = currentTile.row;
@@ -123,20 +122,25 @@ function removeTiles(startingTile)
 		// Remove tiles
 		tilesToRemove.forEach((tile) =>
 		{
-			tile.style.backgroundColor = emptyCell.color;
-			tile.removed = true;
+			//tile.style.backgroundColor = emptyCell.color;
+			tile.style.border = "2px dotted #009f";
+			tile.innerHTML = tile.row + "," + tile.col;
+			tile.toremove = true;
 		});
 
 		// Update score
-		score += Math.floor(Math.pow(tilesToRemove.length, 1.5));
+
+		score += (tilesToRemove.length - 1)* (tilesToRemove.length) / 2;
+
 		scoreDisplay.textContent = score;
 
+		let nbTry = 0;
 		// Collapse columns
 		for (let col = 0; col < boardSize; col++)
 		{
 			const column = board.map((row) => row[col]);
-			const nonEmpty = column.filter((tile) => !tile.removed);
-
+			const nonEmpty = column.filter((tile) => !tile.toremove);
+			console.debug(nonEmpty);
 
 			for (let row = 0; row < boardSize; row++)
 			{
@@ -152,15 +156,19 @@ function removeTiles(startingTile)
 					board[row][col].style.border = "1px solid #f0ff";
 				}
 			}
+			const nonEmptyNow = column.filter((tile) => !tile.removed);
 
-			if (nonEmpty.length == 0)
+			if (nonEmptyNow.length == 0 && nbTry < 100)
 			{
+				nbTry++;
+				console.debug("Removing column "+col);
 				// Empty column, we need to remove it
 				for (let colToRemove = col; colToRemove < boardSize - 1; colToRemove++)
 				{
 					for (let rowToRemove = 0; rowToRemove < boardSize; rowToRemove++)
 					{
 						board[rowToRemove][colToRemove] = board[rowToRemove][colToRemove + 1];
+						board[rowToRemove][colToRemove].col = colToRemove;
 					}
 				}
 				// And remove the left-most column
@@ -168,13 +176,14 @@ function removeTiles(startingTile)
 				{
 					board[rowToDelete][boardSize - 1] = createEmptyTile();
 				}
+				// But now we need to go back one column!
+				col--;
 			}
 		}
 
 		renderBoard();
 		checkWinLose();
 	}
-	inMethodStill = false;
 }
 
 function checkWinLose()
@@ -231,13 +240,35 @@ function checkWinLose()
 	}
 	if (isWin)
 	{
-		score += 10 * boardSize * nbEffectiveColors;
+		score += 1000 * boardSize * nbEffectiveColors;
 		alert("Congratulations! You cleared the board! Final score: " + score);
 		resetGame();
 	}
 	else if (isLost)
 	{
-		alert("Game over, no more possible choices! Final score: " + score);
+		let nbLeft = 0;
+
+		for (let row = board.length - 1; row >= 0; row--)
+		{
+			for (let col = 0; col < board[row].length; col++)
+			{
+				const tile = board[row][col];
+
+				if (!tile.removed)
+				{
+					nbLeft++;
+				}
+			}
+		}
+		if (nbLeft < 5)
+		{
+			score += 100 * boardSize * nbEffectiveColors;
+			alert("Game over, no more possible choices! Less than 5 tiles remaining, good job! Final score: " + score);
+		}
+		else
+		{
+			alert("Game over, no more possible choices! Final score: " + score);
+		}
 		resetGame();
 	}
 }
