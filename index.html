@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Same Game</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        #game-board {
+            display: inline-block;
+            text-align: left;
+        }
+
+        .tile {
+            width: 25px;
+            height: 25px;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid #000;
+            margin: 1px;
+            margin-bottom: -2px;
+        }
+
+        message {
+            size: 20px;
+        }
+
+        .styled {
+            border: 0;
+            line-height: 2.5;
+            padding: 0 20px;
+            font-size: 1rem;
+            text-align: center;
+            color: #fff;
+            text-shadow: 1px 1px 1px #000;
+            border-radius: 10px;
+            background-color: rgba(50, 220, 0, 1);
+            background-image: linear-gradient(
+              to top left,
+              rgba(0, 0, 0, 0.2),
+              rgba(0, 0, 0, 0.2) 30%,
+              rgba(0, 0, 0, 0)
+            );
+            box-shadow:
+              inset 2px 2px 3px rgba(255, 255, 255, 0.6),
+              inset -2px -2px 3px rgba(0, 0, 0, 0.6);
+          }
+          
+          .styled:hover {
+            background-color: rgba(50, 200, 0, 1);
+          }
+          
+          .styled:active {
+            box-shadow:
+              inset -2px -2px 3px rgba(255, 255, 255, 0.6),
+              inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+          }
+
+          .styledBoardSel {
+            border: 0;
+            line-height: 2.5;
+            padding: 0 20px;
+            font-size: 0.8rem;
+            text-align: center;
+            color: #fff;
+            text-shadow: 1px 1px 1px #000;
+            border-radius: 10px;
+            background-color: rgba(50, 220, 50, 1);
+            background-image: linear-gradient(
+              to top left,
+              rgba(0, 0, 0, 0.2),
+              rgba(0, 0, 0, 0.2) 30%,
+              rgba(0, 0, 0, 0)
+            );
+            box-shadow:
+              inset 2px 2px 3px rgba(255, 255, 255, 0.6),
+              inset -2px -2px 3px rgba(0, 0, 0, 0.6);
+          }
+          
+          .styledBoardSel:hover {
+            background-color: rgba(50, 200, 50, 1);
+          }
+          
+          .styledBoardSel:active {
+            box-shadow:
+              inset -2px -2px 3px rgba(255, 255, 255, 0.6),
+              inset 2px 2px 3px rgba(0, 0, 0, 0.6);
+          }
+    </style>
+</head>
+<body>
+    <h1>Similar Lite</h1>
+    <div id="game-board"></div>
+    <p>Score: <span id="score">0</span></p>
+    <div id="message"></div>
+    <button class="favorite styled" type="button" onclick="resetGame();">Restart</button>
+    <div class="board-selection">
+      Warning! The High Score is not yet dependant of the size and nb of colors, nor saved anywhere.
+        <h2>Very Small</h2>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 2);">2 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 3);">3 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 4);">4 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 5);">5 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 6);">6 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 7);">7 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 8);">8 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 9);">9 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(5, 10);">10 colors</button>
+    </div>
+    <div class="board-selection">
+        <h2>Small</h2>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 2);">2 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 3);">3 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 4);">4 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 5);">5 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 6);">6 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 7);">7 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 8);">8 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 9);">9 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(10, 10);">10 colors</button>
+    </div>
+    <div class="board-selection">
+        <h2>Medium</h2>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,2);">2 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,3);">3 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,4);">4 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,5);">5 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,6);">6 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,7);">7 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,8);">8 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,9);">9 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(20,10);">10 colors</button>
+    </div>
+    <div class="board-selection">
+        <h2>Large</h2>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,2);">2 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,3);">3 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,4);">4 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,5);">5 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,6);">6 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,7);">7 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,8);">8 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,9);">9 colors</button>
+        <button class="favorite styledBoardSel" type="button" onclick="resetGame(30,10);">10 colors</button>
+    </div>
+    <script src="SimilarLite.js">
+	</script>
+	<script>
+		createBoard();
+		renderBoard();
+	</script>
+</body>
+</html>

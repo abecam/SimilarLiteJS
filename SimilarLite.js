@@ -1,6 +1,6 @@
 const colors = ["red", "blue", "green", "yellow", "MediumOrchid", "cyan", "PaleGreen", "DarkSalmon", "HotPink", "Orange"];
-const nbColors = 4;
-const boardSize = 10; // Change this to adjust the size of the board
+let nbColors = 4;
+let boardSize = 10; // Change this to adjust the size of the board
 const emptyCell = { color: "white", removed: false };
 
 let board = [];
@@ -11,8 +11,11 @@ let highscore = 0;
 const gameBoard = document.getElementById("game-board");
 const scoreDisplay = document.getElementById("score");
 
-function createBoard()
+function createBoard(newBoardSize = 4, newNbColors = 10)
 {
+	nbColors = newNbColors;
+	boardSize = newBoardSize;
+
 	for (let row = 0; row < boardSize; row++)
 	{
 		const rowTiles = [];
@@ -367,7 +370,7 @@ function showTilesToRemove(startingTile)
 	}
 }
 
-function resetGame()
+function resetGame(newBoardSize = 4, newNbColors = 10)
 {
 	isWin = false;
 	isLost = false;
@@ -375,6 +378,6 @@ function resetGame()
 	score = 0;
 	scoreDisplay.textContent = score;
 	document.getElementById("message").innerHTML = "High score = " + highscore;
-	createBoard();
+	createBoard(newBoardSize, newNbColors);
 	renderBoard();
 }
